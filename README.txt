@@ -2,14 +2,11 @@
 Conway's life built with Forth language
 
 
-Include Rnd.f
+Known pattern cell maps includes cells maps that can be used in the Conway's life simulation using the word 'known_pattern'. 
+This folder should include:
+-Glider
+-Toad
+-Gosper_gun
+-Gosper_gun_with_eater
 
-Include Conways_life_mechanics
-
-run "known_pattern"
-
-run "show_current_array" to check if the code works.
-
-Include Visualisation
-
-run "go"
+Ensure that these text files are moved to the same directory as 'Conways_life_mechanics' before 'known_pattern' is used.
