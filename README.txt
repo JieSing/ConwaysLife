@@ -4,12 +4,12 @@ Conway's life built with Forth language
 
 Include Rnd.f
 
-Include Early_Conway
+Include Conways_life_mechanics
 
 run "known_pattern"
 
 run "show_current_array" to check if the code works.
 
-Include Visualise_1
+Include Visualisation
 
 run "go"
