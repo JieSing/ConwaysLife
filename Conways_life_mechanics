@@ -187,5 +187,4 @@ begin 1 generation +! 0 alive_cell_num ! counter next_gen swap_array reset_temp_
 
 Measure_if_stable_state
 
-cr generation @ . minimum_element @ . maximum_element @ . stable_pattern @ .
 stable_pattern @ 90 = until close_textfile ; 		{ If the number of alive cells doesn't change for 90 (3x30) iterations, the simulation ends }
