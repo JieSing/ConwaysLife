@@ -6,16 +6,18 @@
 { ---------------- Define constants and variables------------------- }
 
 { ----These constants can be changed to vary the width and height of the cell map }
-50 constant height 				{ Changing height and width will change the cell map's dimensions }
-50 constant width
-variable previous_alive_cell_num 0 previous_alive_cell_num !
+1000 constant height 				{ Changing height and width will change the cell map's dimensions }
+1000 constant width
 variable length
 height width * length !				 { Length is the total amount of numbers }
 
+{ ----This controls the density of the cell map when using random_fill }
+variable density 50 density !
 
 { ----These variables and words are used to stop the simulation when a stable state is reached }
 variable stable_pattern 0 stable_pattern ! 	{ Determines how many generations the pattern is stable }
 variable alive_cell_num 0 alive_cell_num ! 	{ Counts the number of alive cells in a generation }
+variable previous_alive_cell_num 0 previous_alive_cell_num ! 	{ Counts the number of alive cells in the previous generation }
 
 : reset_game ( -- ) 0 stable_pattern ! ; 	{ Must set stable_pattern to zero to allow the simulation ran more than once }
 
@@ -39,6 +41,11 @@ variable array_iteration 0 array_iteration ! 	{ This variable is required to giv
 { --These variables measure statistics of the Conway's life somulation }
 variable generation 0 generation ! 		{ Used to count the number of generations in a simulation }	
 : run_time ( -- n ) counter swap - ; 		{ Adds the run time of a word to the stack }
+10 constant Number_of_measurements		{ The number of measurements of the lifetime in the experiment }
+
+
+{ --This variable is used to control whether the edges are wrapped or are closed }
+variable wrapped_edges 1 wrapped_edges ! { Edges are initially wrapped (1) instead of closed (0) }
 
 
 { ------------Create arrays to hold the cell map----------------------- }
@@ -72,7 +79,7 @@ reset_temp_array
 { --------Read a cell map pattern from a textfile------------------ }
 { Read the contents of the textfile and put it on the stack }
 : read_textfile ( -- n n1 n2 ... )
-  s" ./Gosper_gun_with_eater.txt" 			{ Give the text file location. Change the textfile name to change the known_pattern.}
+  s" ./Light_spaceship.txt" 			{ Give the text file location. Change the textfile name to change the known_pattern.}
   ['] included depth 1- >r execute depth r> - 2 + ; 	{ Write contents onto the stack }
 
 { Write the stack into the array }
@@ -82,6 +89,11 @@ length @ 0 do length @ 1 - i - current_array + c! loop ; { Write the stack into 
 
 { Reads a known pattern from a text file into an array }
 : Known_pattern ( -- ) clearstack read_textfile write_into_array ;
+
+
+{ ------------------------Closes the edges of the cell map to stop cells from wrapping around--------------------------- }
+: Close_boundaries ( -- ) 0 wrapped_edges ! ;   	{ Makes the edges of cell map closed }
+: wrap_boundaries ( -- ) 1 wrapped_edges ! ;            { Makes the edges of the cell map wrapped to make a torodial surface }
 
 
 { -----------------Changes the values on the cell map temp_array caused by adding an alive cell-------------------------- }
@@ -118,8 +130,48 @@ swap 1 - swap 2 rot rot Array_temp_add ;
 swap dup 0 = if drop width then swap
 swap 1 - swap 1 + 2 rot rot Array_temp_add ;
 
+{ If the boundaries are closed, the elements are not wrapped around the cell map }
+: closed_boundary_add_alive_cell ( n1 n2 -- )
+dup height 1 - = invert if 			{ Checks if the element is not at the bottom boundary }
+over over 1 + 2 rot rot Array_temp_add          { Increases value of the cell on the bottom }
+
+swap dup width 1 - = invert if			{ Checks if the elements is not at the right boundary }
+swap over over 
+swap 1 + swap 1 + 2 rot rot Array_temp_add	{ Increases value of the cell on the bottom-right }
+else swap then
+
+swap dup 0 = invert if				{ Checks if the elements is not at the left boundary }
+swap over over  
+swap 1 - swap 1 + 2 rot rot Array_temp_add	{ Increases value of the cell on the bottom-left }
+else swap then
+then
+
+dup 0 = invert if 				{ Checks if the element is not at the top boundary }
+over over 1 - 2 rot rot Array_temp_add 		{ Increases value of the cell on the top }
+
+swap dup width 1 - = invert if 			{ Checks if the elements is not at the right boundary }
+swap over over
+swap 1 + swap 1 - 2 rot rot Array_temp_add	{ Increases value of the cell on the top-right }
+else swap then
+
+swap dup 0 = invert if 				{ Checks if the elements is not at the left boundary }
+swap over over
+swap 1 - swap 1 - 2 rot rot Array_temp_add	{ Increases value of the cell on the top-left }
+else swap then
+then
+
+swap dup width 1 - = invert if 			{ Checks if the elements is not at the right boundary }
+swap over over
+swap 1 + swap 2 rot rot Array_temp_add 		{ Increases value of the cell on the right }
+else swap then
+
+swap dup 0 = invert if 				{ Checks if the elements is not at the left boundary }
+1 - swap 2 rot rot Array_temp_add		{ Increases value of the cell on the left }
+else drop drop then ;
+
 { Increase the values of cell and its adjacent cells to represent an alive cell }
-: Add_alive_cell ( n1 n2 -- ) centre bottom bottom_right right top_right top top_left left bottom_left 1 alive_cell_num +! ;
+: Add_alive_cell ( n1 n2 -- ) centre wrapped_edges @ 1 = if bottom bottom_right right top_right top top_left left bottom_left
+else closed_boundary_add_alive_cell then 1 alive_cell_num +! ;
 
 
 { ---------------------Finds the next generation of current_array and writes it into temp_array---------------------- } 
@@ -134,24 +186,38 @@ swap 1 - swap 1 + 2 rot rot Array_temp_add ;
 
 
 { -------Generates a random pattern on the cell map ( requires rnd )-------------- }
-: random_pattern ( -- ) reset_temp_array width 0 do height 0 do 
-2 rnd 1 = if i j Add_alive_cell then loop loop 			{ adds an alive cell to the temp array when a 1 is generated }
+: random_pattern ( -- ) density @ 100 >= if abort" Density must be between 0-99 "  { Checks the density is between the range 0-99 }
+else density @ 0 < if abort" Density must be between 0-99 " then then
+reset_temp_array width 0 do height 0 do 
+100 rnd density @ 1 - <= if i j Add_alive_cell then loop loop 	{ adds an alive cell to the temp_array when less than or equal to the given density }
 swap_array reset_temp_array ; 					{ swaps the arrays around }
 
 
-{ ------Endlessly iterates through next generations of Conway's life-------------- }
-{ -------Before using please run known_pattern or random_pattern------------------ }
-: Endless_iterate begin show_current_array next_gen swap_array reset_temp_array again ;
+{ ---------------------Saves the contents of current_array into a text file------------------------ }
+{ ----Ensure the array you want to save is current_arrary not temp_arrary (Else use swap_array)---- }
+variable matrix-file-id                              { Create Variable to hold file id handle }
+
+: make_matrixfile ( -- )                             { Create a test file to read / write to  }
+  s" C:\Users\Harry\Documents\My documents\Third year\Laboratory work\Conway's life\Conway's life code\known pattern files\Current_cell_map.txt" r/w create-file drop  { Create the file                        } 
+  matrix-file-id ! ;                                 { Store file handle for later use       }
+
+: write_up_array ( -- ) width 0 do height 0 do i j Array_@ (.) matrix-file-id @ write-file drop s"  " matrix-file-id @ write-file drop
+ loop s"  " matrix-file-id @ write-line drop loop ;
+
+: close_matrixfile ( -- ) matrix-file-id @ close-file drop ;  { Close the textfile  }
+
+{ This function writes up the contents of current_array into a text file - useful for creating known_pattern cell maps }
+: Make_array_file ( -- ) make_matrixfile write_up_array close_matrixfile ;
 
 
 { -----Words to write simulation statistics into a text file for later analysis--- }
 variable file-id 		{ Create a variable to hold the file-id }
 
-: make_textfile 		{ Create the textfile }                            
+: make_textfile ( -- )		{ Create the textfile }                            
   s" C:\Users\Harry\Documents\My documents\Third year\Laboratory work\Conway's life\Conway's life code\cell map statistics\Loop_statistics.txt" r/w create-file drop  
   file-id ! ; 			{ The location that the textfile will be written in is above }                          
 
-: close_textfile file-id @ close-file drop ; { close the textfile }
+: close_textfile ( -- ) file-id @ close-file drop ; { close the textfile }
 
 
 { --------Determines if the simulation is in a stable state--------------------- }
@@ -166,7 +232,8 @@ array_iteration @ 29 = if 0 array_iteration ! 					{ Wraps the array to ensure i
 else 1 array_iteration +! then
 
 minimum_element @ previous_minimum_element !					{ Set the previous minimum to the current miniumum }
-maximum_element @ previous_maximum_element ! ;					{ Set the previous maximum to the current miniumum }
+maximum_element @ previous_maximum_element !					{ Set the previous maximum to the current miniumum }
+alive_cell_num @ previous_alive_cell_num ! ;					{ Set the previous number of alive cells to the current number }
 
 
 { -----Word (simulate_no_visuals) will run a simulation, without visuals, and write its statistics into a textfile---- }
@@ -174,17 +241,63 @@ maximum_element @ previous_maximum_element ! ;					{ Set the previous maximum to
 { Write the generation statistics into the test file }
 : write_file ( -- ) generation @ (.) file-id @ write-file drop				{ Writes in the generation }
 s"  " file-id @ write-file drop alive_cell_num @ (.) file-id @ write-file drop		{ Writes in the number of alive cells }
-s"  " file-id @ write-file drop (.) file-id @ write-line drop ;                         { Writes in the run time of the generation }
+s"  " file-id @ write-file drop (.) file-id @ write-file drop				{ Writes in the run time of the simulation }
+s"  " file-id @ write-file drop alive_cell_num @ previous_alive_cell_num @ -
+ (.) file-id @ write-line drop ; 							{ Writes in the activity of the generation }
 
 { Run the simulation and write statistics into a textfile }
-: simulate_no_visuals ( -- ) reset_game make_textfile					{ Creates the textfile }
+: simulate_no_visuals ( -- ) reset_game 0 generation ! make_textfile 			{ Creates the textfile }
 
 s" Generation" file-id @ write-file drop    						{ Write the headers for the textfile }
 s"  " file-id @ write-file drop s" Alive_cells" file-id @ write-file drop
-s"  " file-id @ write-file drop s" Run_time" file-id @ write-line drop
+s"  " file-id @ write-file drop s" Run-time" file-id @ write-file drop
+s"  " file-id @ write-file drop s" Activity" file-id @ write-line drop
 
-begin 1 generation +! 0 alive_cell_num ! counter next_gen swap_array reset_temp_array run_time write_file { Iterates a generation }
+0                                                                                       { Zero is used to set the initial time to 0 }
+begin 1 generation +! 0 alive_cell_num ! counter next_gen swap_array reset_temp_array run_time + dup write_file
 
+Measure_if_stable_state					{ Iterates a generation }
+
+stable_pattern @ 90 = until clearstack close_textfile ; 		{ If the number of alive cells doesn't change for 90 (3x30) iterations, the simulation ends }
+
+
+{ ------Word (Simulate_densities) will run a given number of simulations for random_cell maps of densities 0 to 99-------- }
+{ -------------------------and will write the lifetimes of the cell maps into a text file--------------------------------- }
+variable density_textfile					{ Variable holds the textfile's file id }
+
+: make_density_file ( -- )					{ Create the textfile }                            
+  s" C:\Users\Harry\Documents\My documents\Third year\Laboratory work\Conway's life\Conway's life code\cell map statistics\Density_data.txt" r/w create-file drop  
+  density_textfile ! ; 						{ The location that the textfile will be written in is above }             
+
+: close_density_file density_textfile @ close-file drop ; 	{ closes the textfile }
+
+: Iterate_simulation reset_game random_pattern
+begin 1 generation +! 0 alive_cell_num ! next_gen swap_array reset_temp_array  	{ Iterates a generation }
 Measure_if_stable_state
+stable_pattern @ 90 = until ;							{ The simulation ends when a stable state is reached }
 
-stable_pattern @ 90 = until close_textfile ; 		{ If the number of alive cells doesn't change for 90 (3x30) iterations, the simulation ends }
+{ Simulates random_pattern cell maps using densities 0 to 99, with Number_of_measurements measurements per density, and writes the }
+{ lifetime of the cell map of each measurement into a textfile }
+: Simulate_densities ( -- ) make_density_file 
+ 
+s" Density" density_textfile @ write-file drop    				{ Write the headers for the textfile }
+s"  " density_textfile @ write-file drop s" Lifetime" density_textfile @ write-line drop
+
+100 1 do i . i density ! 					{ Iterate through densities 0 to 99 }
+density @ (.) density_textfile @ write-file drop				{ Write the density into the textfile }
+s"  " density_textfile @ write-file drop 	
+Number_of_measurements 0 do Iterate_simulation							{ Take number_of_measurements for each density }
+s" ," density_textfile @ write-file drop generation @ 90 - (.) density_textfile @ write-file drop	{ Take 90 away due to stable state calculation }
+0 generation ! 0 stable_pattern ! loop s"  " density_textfile @ write-line loop close_density_file ;
+
+
+{ Simulates random_pattern cell maps of a given density, with Number_of_measurements measurements and writes it into a textfile }
+: Measure_single_density ( -- ) make_density_file 
+
+s" Iteration" density_textfile @ write-file drop    				{ Write the headers for the textfile }
+s"  " density_textfile @ write-file drop s" Lifetime" density_textfile @ write-line drop
+
+Number_of_measurements 0 do Iterate_simulation 
+i (.) density_textfile @ write-file drop
+s"  " density_textfile @ write-file drop generation @ 90 - (.) density_textfile @ write-line drop	{ Take 90 away due to stable state calculation }
+0 generation ! 0 stable_pattern ! loop close_density_file ;		
