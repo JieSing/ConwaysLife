@@ -17,12 +17,12 @@ Ensure that these text files of pre-generated cell maps are moved to the same di
 Method:
 1. In 'Conways_life_mechanics.txt', on line 81, change the name of text file to the desired file's name.
 
-2. Change constants width and height to match the known_pattern ( width x height - shown above )
+2. Change constants width and height to match the known_pattern ( width x height - shown above ).
 
 3. run word "Known_pattern". Array will now be written into current_array.
 
 
-You can write current_array into a text file using the word "Make_array_file". This is can be used to generate known_pattern cell maps.
+You can write current_array into a text file using the word "Make_array_file". This can be used to generate known_pattern cell maps.
 
 
 
