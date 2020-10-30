@@ -20,7 +20,7 @@ The main branch should include the following files:
 6. Visualisation
   This code is used to visualise the Conway's Game of Life simulation using Windows graphics commands.
   
-7. Visualisation
+7. Visualisation_bmp
   This code is used to visualise the Conway's Game of Life simulation using a bitmap image file.
   
 How to use the code
