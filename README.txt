@@ -4,7 +4,7 @@ Conway's life built with Forth
 Known-pattern-cell-maps folder contains pre-generated cell maps that can be used in Conways_life_mechanics as current_array. 
 
 This folder should include:
--Glider (10x10)
+-Glider ( 10 x 10 )
 -Toad (10 x 10)
 -Gosper_gun ( 50 x 50 )
 -Gosper_gun_with_eater ( 50 x 50 )
