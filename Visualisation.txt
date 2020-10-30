@@ -152,7 +152,7 @@ REQUIRES RND
 
 { -------------------------- Create Pens and Brushes ------------------------}
 {                                                                            }
-{         By default paints live cells in green and dead cells in black.     }
+{         By default paints live cells in white and dead cells in black.     }
 {         Play with RGB values 0-255 to change default colors                }                                             
 
 
@@ -164,7 +164,7 @@ REQUIRES RND
    CreatePen ;
 
 
-: GREEN-PEN     ( -- hpen )   { Create a colored pen style, thickness, RGB Color }
+: WHITE-PEN     ( -- hpen )   { Create a colored pen style, thickness, RGB Color }
    PS_SOLID 1                 { Style and Thickness                              }
    255 16 LSHIFT
    255  8 LSHIFT OR
