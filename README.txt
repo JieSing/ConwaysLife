@@ -6,7 +6,7 @@ The main branch should include the following files:
   This code contains the mechanics for the Conway's life simulation. It can generate random cell maps and read cell map text files. It can use these cell maps to run a Conway's life simulation. The file can also write statistics of the simulations into text files.
   
 2. Density_measurements
-  This code is used to test Conway's Game of Life by altering the density of randomly generated text files. It contains two words for measurements: Simulate_densities (which creates random cell maps for densities 0 to 99 and iterates them
+  This code is used to test Conway's Game of Life by altering the density of randomly generated text files. 
  
 3. Glider.txt
   This text file is an example of a known cell map that can be called by Conways_life_mechanics with the function known_pattern. This text file has the pattern for a glider (10x10) which can be called in Conways_life_mechanics using the word 'known_pattern'.
