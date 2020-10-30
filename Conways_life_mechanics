@@ -6,8 +6,8 @@
 { ---------------- Define constants and variables------------------- }
 
 { ----These constants can be changed to vary the width and height of the cell map }
-1000 constant height 				{ Changing height and width will change the cell map's dimensions }
-1000 constant width
+10 constant height 				{ Changing height and width will change the cell map's dimensions }
+10 constant width
 variable length
 height width * length !				 { Length is the total amount of numbers }
 
@@ -40,8 +40,7 @@ variable array_iteration 0 array_iteration ! 	{ This variable is required to giv
 
 { --These variables measure statistics of the Conway's life somulation }
 variable generation 0 generation ! 		{ Used to count the number of generations in a simulation }	
-: run_time ( -- n ) counter swap - ; 		{ Adds the run time of a word to the stack }
-10 constant Number_of_measurements		{ The number of measurements of the lifetime in the experiment }
+: run_time ( -- n ) counter swap - ; 		{ Adds the run time of a word to the stack (must be used with counter)}
 
 
 { --This variable is used to control whether the edges are wrapped or are closed }
@@ -79,7 +78,7 @@ reset_temp_array
 { --------Read a cell map pattern from a textfile------------------ }
 { Read the contents of the textfile and put it on the stack }
 : read_textfile ( -- n n1 n2 ... )
-  s" ./Light_spaceship.txt" 			{ Give the text file location. Change the textfile name to change the known_pattern.}
+  s" ./Glider.txt" 			{ Give the text file location. Change the textfile name to change the known_pattern.}
   ['] included depth 1- >r execute depth r> - 2 + ; 	{ Write contents onto the stack }
 
 { Write the stack into the array }
@@ -254,50 +253,7 @@ s"  " file-id @ write-file drop s" Run-time" file-id @ write-file drop
 s"  " file-id @ write-file drop s" Activity" file-id @ write-line drop
 
 0                                                                                       { Zero is used to set the initial time to 0 }
-begin 1 generation +! 0 alive_cell_num ! counter next_gen swap_array reset_temp_array run_time + dup write_file
-
-Measure_if_stable_state					{ Iterates a generation }
-
-stable_pattern @ 90 = until clearstack close_textfile ; 		{ If the number of alive cells doesn't change for 90 (3x30) iterations, the simulation ends }
-
-
-{ ------Word (Simulate_densities) will run a given number of simulations for random_cell maps of densities 0 to 99-------- }
-{ -------------------------and will write the lifetimes of the cell maps into a text file--------------------------------- }
-variable density_textfile					{ Variable holds the textfile's file id }
-
-: make_density_file ( -- )					{ Create the textfile }                            
-  s" C:\Users\Harry\Documents\My documents\Third year\Laboratory work\Conway's life\Conway's life code\cell map statistics\Density_data.txt" r/w create-file drop  
-  density_textfile ! ; 						{ The location that the textfile will be written in is above }             
-
-: close_density_file density_textfile @ close-file drop ; 	{ closes the textfile }
-
-: Iterate_simulation reset_game random_pattern
-begin 1 generation +! 0 alive_cell_num ! next_gen swap_array reset_temp_array  	{ Iterates a generation }
-Measure_if_stable_state
-stable_pattern @ 90 = until ;							{ The simulation ends when a stable state is reached }
-
-{ Simulates random_pattern cell maps using densities 0 to 99, with Number_of_measurements measurements per density, and writes the }
-{ lifetime of the cell map of each measurement into a textfile }
-: Simulate_densities ( -- ) make_density_file 
- 
-s" Density" density_textfile @ write-file drop    				{ Write the headers for the textfile }
-s"  " density_textfile @ write-file drop s" Lifetime" density_textfile @ write-line drop
-
-100 1 do i . i density ! 					{ Iterate through densities 0 to 99 }
-density @ (.) density_textfile @ write-file drop				{ Write the density into the textfile }
-s"  " density_textfile @ write-file drop 	
-Number_of_measurements 0 do Iterate_simulation							{ Take number_of_measurements for each density }
-s" ," density_textfile @ write-file drop generation @ 90 - (.) density_textfile @ write-file drop	{ Take 90 away due to stable state calculation }
-0 generation ! 0 stable_pattern ! loop s"  " density_textfile @ write-line loop close_density_file ;
-
-
-{ Simulates random_pattern cell maps of a given density, with Number_of_measurements measurements and writes it into a textfile }
-: Measure_single_density ( -- ) make_density_file 
-
-s" Iteration" density_textfile @ write-file drop    				{ Write the headers for the textfile }
-s"  " density_textfile @ write-file drop s" Lifetime" density_textfile @ write-line drop
-
-Number_of_measurements 0 do Iterate_simulation 
-i (.) density_textfile @ write-file drop
-s"  " density_textfile @ write-file drop generation @ 90 - (.) density_textfile @ write-line drop	{ Take 90 away due to stable state calculation }
-0 generation ! 0 stable_pattern ! loop close_density_file ;		
+begin 1 generation +! 0 alive_cell_num ! counter next_gen swap_array reset_temp_array run_time + dup write_file  { Iterates a generation }
+Measure_if_stable_state					
+stable_pattern @ 90 = until clearstack close_textfile ; 		{ If the number of alive cells doesn't change for 90 (3x30) }
+                                                                        { iterations, the simulation ends }
