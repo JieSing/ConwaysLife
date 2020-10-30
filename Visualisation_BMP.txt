@@ -182,7 +182,7 @@ wipe-black
   Life life_to_bmp 
   show-bmp                                                                      { Write .bmp file to Forth console  }
   10 ms                                                                         { Add a small delay between cycles  }
-  key? until = until                                                            { Loop if there is no key press     }
+  key? until =                                                                  { Loop if there is no key press     }
   print-blanks ;
 
 
