@@ -11,7 +11,7 @@ The main branch should include the following files:
 3. Glider.txt
   This text file is an example of a known cell map that can be called by Conways_life_mechanics with the function known_pattern. This text file has the pattern for a glider (10x10) which can be called in Conways_life_mechanics using the word 'known_pattern'.
 
-4. Phase_transition.txt
+4. Phase_transition
   This code can be used to vary the synchronicity s of the Conway's life simulation. 
   
 5. Rnd
