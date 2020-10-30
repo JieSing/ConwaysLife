@@ -1,5 +1,5 @@
 # ConwaysLife
-Conway's life built with Forth language
+A Conway's Game of Life simulation built with Forth language by Harry Anthony and Yoo Jie Sing
 
 
 Include Rnd.f
