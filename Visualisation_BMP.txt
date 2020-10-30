@@ -2,7 +2,7 @@
 { ---------------- Life display by making and manipulating bmp's in memory -------------- } 
 
 
-REQUIRES RND
+REQUIRES RND          { Load random numbers module }
 
 variable bmp-address  { Stores start address of current bmp file             }
 
@@ -18,14 +18,14 @@ create Dead_RGB_Cell 3 chars allot { 3 cell array to carry an RGB triplet color 
 
 
 
-: local>pixel ( x y -- world_index )         { Take an x-y cordinate pair and turn into a starting address} 
-  width * 3 * swap 3 * +              { for the RGB element of a memory bmp                        }
+: local>pixel ( x y -- world_index )                       { Take an x-y cordinate pair and turn into a starting address } 
+  width * 3 * swap 3 * +                                   { for the RGB element of a memory bmp                         }
   bmp-header @ +
 ;
 
 
 
-: Life                            { Main Life routine goes here                                        }
+: Life                                                     { Main Life routine goes here                                        }
   next_gen swap_array reset_temp_array                     { Random fill for testing purposes - replace with your own routine   }
 ;
 
@@ -34,13 +34,13 @@ create Dead_RGB_Cell 3 chars allot { 3 cell array to carry an RGB triplet color 
 { ---------------------------- Creating the bmp in memory ------------------------- }
 
 
-: Make-Memory-Bmp ( -- address)          { Create a 24 bit (RGB) bitmap in memory                       } 
-                                         { with world_x by world_y dimensions - return starting address }
-  length @ 3 * 54 + chars allocate   { Allocate required memory 3 x size + header in chars          }
+: Make-Memory-Bmp ( -- address)                             { Create a 24 bit (RGB) bitmap in memory                       } 
+                                                            { with world_x by world_y dimensions - return starting address }
+  length @ 3 * 54 + chars allocate                          { Allocate required memory 3 x size + header in chars          }
   drop bmp-address !
 
-  length @ 3 * 54 + bmp-length !     { Store file length }
-  54                    bmp-header !     { Sore header size  }
+  length @ 3 * 54 + bmp-length !                { Store file length }
+  54                bmp-header !                { Sore header size  }
 
 
   bmp-length @  1 + 0 do           { Set all memory elements to zero initially }
@@ -60,19 +60,19 @@ create Dead_RGB_Cell 3 chars allot { 3 cell array to carry an RGB triplet color 
   19 bmp-address @ 42 + c!
   11 bmp-address @ 43 + c!
  
-  length @ 3 * 54 + pad !      { Store file length in header as 32 bit Dword }
+  length @ 3 * 54 + pad !               { Store file length in header as 32 bit word }
   pad     c@ bmp-address @ 2 + c! 
   pad 1 + c@ bmp-address @ 3 + c! 
   pad 2 + c@ bmp-address @ 4 + c! 
   pad 3 + c@ bmp-address @ 5 + c! 
 
-  width pad !               { Store bmp x dimension in header             }
+  width pad !                           { Store bmp x dimension in header             }
   pad     c@ bmp-address @ 18 + c! 
   pad 1 + c@ bmp-address @ 19 + c! 
   pad 2 + c@ bmp-address @ 20 + c! 
   pad 3 + c@ bmp-address @ 21 + c! 
 
-  height pad !               { Store bmp y dimension in header             }
+  height pad !                          { Store bmp y dimension in header             }
   pad     c@ bmp-address @ 22 + c! 
   pad 1 + c@ bmp-address @ 23 + c! 
   pad 2 + c@ bmp-address @ 24 + c! 
@@ -83,8 +83,6 @@ create Dead_RGB_Cell 3 chars allot { 3 cell array to carry an RGB triplet color 
 
 
 { ------------------ Word to display BMP using Windows Calls ------------------  }
-{                                                                                }
-{                            Dont mess with this bit                             }
 
 
 Function: SetDIBitsToDevice ( a b c d e f g h i j k l -- res )
@@ -102,8 +100,6 @@ Function: SetDIBitsToDevice ( a b c d e f g h i j k l -- res )
 
 
 { --------------------------  Set BMP Stretch in Window -----------------------  }
-{                                                                                }
-
 
 
 Function: SetStretchBltMode ( a b -- res )
@@ -114,16 +110,10 @@ Function: SetStretchBltMode ( a b -- res )
   ;
 
 
+{ ------------------------- Words to Color BMP Pixels ------------------------ }
 
 
-
-
-
-{ ------------------------- Words to define colors etc ------------------------  }
-
-
-
-: live-cell-color            { Define RGB color for a living cell           }
+: live-cell-color               { Define RGB color for a living cell           }
   255 Live_RGB_Cell  2 + c!  
   255 Live_RGB_Cell  1 + c!
   255 Live_RGB_Cell      c!
@@ -131,7 +121,7 @@ Function: SetStretchBltMode ( a b -- res )
 
 
 
-: dead-cell-color            { Define RGB color for a dead cell             }
+: dead-cell-color               { Define RGB color for a dead cell             }
   000 Live_RGB_Cell  2 + c!  
   000 Live_RGB_Cell  1 + c!
   000 Live_RGB_Cell      c!
@@ -139,10 +129,10 @@ Function: SetStretchBltMode ( a b -- res )
 
 
 
-: Print-blanks { Print blank lines to avoid overwriting the BMP display }
+: Print-blanks                            { Print blank lines to avoid overwriting the BMP display }
   wipe 
-  40 0 do cr   { Change this line to put default prompt in different    }
-  loop ;       { positions below the bmp                                }
+  40 0 do cr                              { Change this line to put default prompt in different    }
+  loop ;                                  { positions below the bmp file                           }
 
 
 : Show-BMP
@@ -150,7 +140,7 @@ Function: SetStretchBltMode ( a b -- res )
 ;
 
 
-: wipe-black                       { Set bmp file to solid black }
+: wipe-black                                    { Set bmp pixels to solid black }
   bmp-length @ bmp-header @ 1 + do
   0 bmp-address @ 0 + i + c!
   0 bmp-address @ 1 + i + c!
@@ -158,7 +148,7 @@ Function: SetStretchBltMode ( a b -- res )
   3 +loop ;
 
 
-: wipe-white                       { Set bmp file to solid white }
+: wipe-white                                    { Set bmp pixels to solid white }
   bmp-length @ bmp-header @ 1 + do
   255 bmp-address @ 0 + i + c!
   255 bmp-address @ 1 + i + c!
@@ -166,16 +156,16 @@ Function: SetStretchBltMode ( a b -- res )
   3 +loop ;
 
 
-: Life_to_BMP                                        { Write dead / live cells from life array into  }
-   height 0 do                                 { BMP structuer held in memory                  }
+: Life_to_BMP                                                                   { Write dead / live cells from life array into  }
+   height 0 do                                                                  { BMP structure held in memory                  }
     width 0 do
-     i j local>pixel bmp-address @ + bmp-pointer !   { Find and store pointer to pixel in bmp file   }                       
-     i j Array_@         { Get a life element and check if alive or dead }
-     2 mod 0 = invert if                                          { Cell dead, color BMP pixel dead               }
+     i j local>pixel bmp-address @ + bmp-pointer !                              { Find and store pointer to pixel in bmp file   }       
+     i j Array_@                                                                { Pick a life element and check if it is alive or dead }
+     2 mod 0 = invert if                                                        { Cell dead, color BMP pixel dead               }
       0     bmp-pointer @     c!
       0     bmp-pointer @ 1 + c!
       0     bmp-pointer @ 2 + c!
-     else                                            { Cell alive, color BMP pixel alive             }
+     else                                                                       { Cell alive, color BMP pixel alive             }
       255      bmp-pointer @     c!
       255    bmp-pointer @ 1 + c!
       255      bmp-pointer @ 2 + c!
@@ -184,15 +174,15 @@ Function: SetStretchBltMode ( a b -- res )
    loop
 ;
 
-make-memory-bmp        { Create a BMP in memory to start with            }
+make-memory-bmp                                                                 { Create a BMP in memory to start with            }
 wipe-black
 
 
-: go Print-blanks begin           { “live” and “dead” cells                         }
+: go Print-blanks begin                                                         { “live” and “dead” cells                         }
   Life life_to_bmp 
-  show-bmp             { Write .bmp file to Forth console  }
-  10 ms                { Add a little delay between cycles }
-  key? until = until           { Loop if there is no key press     }
+  show-bmp                                                                      { Write .bmp file to Forth console  }
+  10 ms                                                                         { Add a small delay between cycles  }
+  key? until = until                                                            { Loop if there is no key press     }
   print-blanks ;
 
 
