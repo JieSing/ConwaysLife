@@ -2,7 +2,7 @@
 Conway's life built with Forth 
 
 
-Known-pattern-cell-maps folder includes pregenerated cell maps that can be used in the Conway's life simulation. To generate customised cell map, check "write_up_array" and "Make_array_file" in Conways_life_mechanics.txt.
+Known-pattern-cell-maps folder contains pregenerated cell maps that can be used in the Conway's life simulation. To generate customised cell map, check "write_up_array" and "Make_array_file" in Conways_life_mechanics.txt.
 
 This folder should include:
 -Glider
