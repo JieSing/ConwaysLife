@@ -1,9 +1,9 @@
 # ConwaysLife
-A Conway's Game of Life simulation built with Forth language by Harry Anthony and Yoo Jie Sing
+A Conway's Game of Life simulation built with Forth language by Harry Anthony and Jie Sing Yoo
 
 The main branch should include the following files:
 1. Conways_life_mechanics
-  This code is contains the mechanics for the Conway's life simulation. It can generate random cell maps and read cell map textfiles. It can use these cell maps to run a Conway's life simulation. The file can also write statistics of the simulations into text files.
+  This code contains the mechanics for the Conway's life simulation. It can generate random cell maps and read cell map text files. It can use these cell maps to run a Conway's life simulation. The file can also write statistics of the simulations into text files.
   
 2. Density_measurements
   This code is used to test Conway's Game of Life by altering the density of randomly generated text files. It contains two words for measurements: Simulate_densities (which creates random cell maps for densities 0 to 99 and iterates them
@@ -12,7 +12,7 @@ The main branch should include the following files:
   This text file is an example of a known cell map that can be called by Conways_life_mechanics with the function known_pattern. This text file has the pattern for a glider (10x10) which can be called in Conways_life_mechanics using the word 'known_pattern'.
 
 4. Phase_transition
-  This code can be used to vary the synchronicity s of the Conway's life simulation. 
+  This code can be used to vary the synchronicity S of the Conway's life simulation. 
   
 5. Rnd
   This code is used to generate random numbers.
@@ -38,7 +38,7 @@ To fill the cell map, there are two options:
   
 The cell map can then be executed in several ways:
 1. run 'simulate_no_visuals'
-    This will run the simulation without visuals until a stable state is reached and it will write the statistics of the run (generation,alive_cells,run_time,activity) into a    text file.
+    This will run the simulation without visuals until a stable state is reached and it will write the statistics of the run (generation,alive_cells,run_time,activity) into a text file.
 
 2. Execute visualisation.f. Run 'go'.
    This will run the simulation and visualise it using windows. The visualisation will end when a stable state is detected.
@@ -60,8 +60,8 @@ The cell map can then be executed in several ways:
 Other functionality:
 Conways_life_mechanics also contains the following features:
 - Close_boundaries ( -- ) 
-  This word will close the boundaries of the cell map. The cell map is initiall set to have wrapped boundaries (torodial surface).
+  This word will close the boundaries of the cell map. The cell map is initially set to have wrapped boundaries (torodial surface).
 - Open_boundaries ( -- )
-  This word will open the boundaries of the cell map. The cell map is initiall set to have wrapped boundaries (torodial surface).
+  This word will open the boundaries of the cell map. The cell map is initially set to have wrapped boundaries (torodial surface).
 - Make_array_file ( -- )
   This word will save the current_array into a text file. This word is useful for creating known_pattern cell maps.
